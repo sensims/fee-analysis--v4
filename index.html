@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>三部SAP门店费用分析 - 版本选择</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ==================== Impeccable 设计系统 - 与手机版一致 ==================== */
+:root {
+  --font-display: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* 与手机版 index_Impeccable手机版.html 保持一致的颜色系统 */
+  --primary: #4f46e5;
+  --primary-light: #818cf8;
+  --primary-dark: #3730a3;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-500: #6b7280;
+  --gray-700: #374151;
+  --gray-900: #111827;
+  --radius: 16px;
+  --radius-sm: 12px;
+  --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+  
+  /* 导航页面专用变量 - 基于手机版颜色 */
+  --color-bg: var(--gray-50);
+  --color-surface: white;
+  --color-surface-2: var(--gray-100);
+  --color-border: var(--gray-200);
+  --color-text: var(--gray-900);
+  --color-text-muted: var(--gray-500);
+  --color-accent: var(--primary);
+  --color-accent-light: var(--primary-light);
+  --color-accent-glow: rgba(79, 70, 229, 0.3);
+  --color-pc: var(--primary);
+  --color-pc-glow: rgba(79, 70, 229, 0.3);
+  --color-mobile: var(--success);
+  --color-mobile-glow: rgba(16, 185, 129, 0.3);
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+  --space-3xl: 48px;
+  --space-4xl: 64px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-display);
+  background: var(--color-bg);
+  color: var(--color-text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ==================== 背景装饰 - 使用手机版主色调 ==================== */
+body::before {
+  content: '';
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(79, 70, 229, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(129, 140, 248, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.04) 0%, transparent 70%);
+  animation: bgFloat 20s ease-in-out infinite;
+  z-index: 0;
+}
+
+@keyframes bgFloat {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(30px, -30px) rotate(120deg); }
+  66% { transform: translate(-20px, 20px) rotate(240deg); }
+}
+
+/* ==================== 主容器 ==================== */
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-4xl) var(--space-xl);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* ==================== 头部区域 - 杂志风格 ==================== */
+.header {
+  text-align: center;
+  margin-bottom: var(--space-4xl);
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: var(--space-xl);
+}
+
+.header h1 {
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin-bottom: var(--space-lg);
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--primary-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header p {
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  color: var(--color-text-muted);
+  font-weight: 400;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ==================== 版本选择卡片 ==================== */
+.version-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-xl);
+  margin-bottom: var(--space-3xl);
+}
+
+.version-card {
+  position: relative;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-3xl) var(--space-2xl);
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--color-text);
+  display: block;
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: backwards;
+}
+
+.version-card:nth-child(1) { animation-delay: 0.1s; }
+.version-card:nth-child(2) { animation-delay: 0.2s; }
+
+.version-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--card-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.version-card:hover::before {
+  transform: scaleX(1);
+}
+
+.version-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--card-accent);
+  box-shadow: 
+    var(--shadow-lg),
+    0 0 40px var(--card-glow);
+}
+
+.version-card:active {
+  transform: translateY(-4px);
+}
+
+/* PC版本卡片 */
+.version-card.pc {
+  --card-accent: var(--color-pc);
+  --card-glow: var(--color-pc-glow);
+}
+
+/* 手机版本卡片 */
+.version-card.mobile {
+  --card-accent: var(--color-mobile);
+  --card-glow: var(--color-mobile-glow);
+}
+
+/* ==================== 卡片图标 ==================== */
+.card-icon {
+  font-size: 4rem;
+  line-height: 1;
+  margin-bottom: var(--space-xl);
+  display: block;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ==================== 卡片内容 ==================== */
+.card-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--card-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: var(--space-lg);
+}
+
+.card-title {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: var(--space-md);
+  letter-spacing: -0.02em;
+}
+
+.card-description {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  margin-bottom: var(--space-xl);
+}
+
+/* ==================== 卡片特性列表 ==================== */
+.card-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-2xl);
+}
+
+.card-features li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.card-features li::before {
+  content: '✓';
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: var(--card-accent);
+  color: white;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ==================== 卡片按钮 ==================== */
+.card-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-lg);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--card-accent);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.version-card:hover .card-action {
+  background: var(--card-accent);
+  color: white;
+  border-color: var(--card-accent);
+}
+
+.card-action-arrow {
+  font-size: 1.25rem;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.version-card:hover .card-action-arrow {
+  transform: translateX(4px);
+}
+
+/* ==================== 底部信息 ==================== */
+.footer {
+  text-align: center;
+  padding-top: var(--space-2xl);
+  border-top: 1px solid var(--color-border);
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  animation-delay: 0.3s;
+  animation-fill-mode: backwards;
+}
+
+.footer p {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.footer a {
+  color: var(--color-accent-light);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* ==================== 动画 ==================== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==================== 响应式设计 ==================== */
+@media (max-width: 768px) {
+  .container {
+    padding: var(--space-2xl) var(--space-lg);
+  }
+
+  .header {
+    margin-bottom: var(--space-2xl);
+  }
+
+  .version-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+
+  .version-card {
+    padding: var(--space-2xl) var(--space-xl);
+  }
+
+  .card-icon {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: var(--space-xl) var(--space-md);
+  }
+
+  .header-badge {
+    font-size: 0.65rem;
+  }
+
+  .version-card {
+    padding: var(--space-xl) var(--space-lg);
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- 头部区域 -->
+  <div class="header">
+    <div class="header-badge">
+      <span>📊</span>
+      <span>选择查看版本</span>
+    </div>
+    <h1>三部SAP门店费用分析</h1>
+    <p>根据您的设备选择最适合的版本，获得最佳的数据分析体验</p>
+  </div>
+
+  <!-- 版本选择卡片 -->
+  <div class="version-grid">
+    <!-- PC版卡片 -->
+    <a href="../index_pc.html" class="version-card pc">
+      <span class="card-icon">🖥️</span>
+      <div class="card-label">电脑版</div>
+      <h2 class="card-title">电脑PC显示版本</h2>
+      <p class="card-description">
+        专为桌面设备优化，支持大屏幕数据展示，适合办公室环境下的详细分析和报表查看。
+      </p>
+      <ul class="card-features">
+        <li>大屏幕数据表格展示</li>
+        <li>完整图表可视化</li>
+        <li>多维度筛选与对比</li>
+        <li>适合办公环境使用</li>
+      </ul>
+      <div class="card-action">
+        <span>进入电脑版</span>
+        <span class="card-action-arrow">→</span>
+      </div>
+    </a>
+
+    <!-- 手机版卡片 -->
+    <a href="../index_Impeccablev2.html" class="version-card mobile">
+      <span class="card-icon">📱</span>
+      <div class="card-label">手机版</div>
+      <h2 class="card-title">手机专属版本</h2>
+      <p class="card-description">
+        专为移动设备设计，采用拇指优先交互设计，随时随地查看门店费用数据。
+      </p>
+      <ul class="card-features">
+        <li>手机端优化界面</li>
+        <li>底部导航快速切换</li>
+        <li>触摸友好交互设计</li>
+        <li>随时随地查看数据</li>
+      </ul>
+      <div class="card-action">
+        <span>进入手机版</span>
+        <span class="card-action-arrow">→</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- 底部信息 -->
+  <div class="footer">
+    <p>
+      三部SAP门店费用分析系统 · 支持Excel数据导入与多维度分析<br>
+      如有问题，请联系 <a href="#">技术支持</a>
+    </p>
+    <div style="margin-top:20px;">
+      <button class="btn btn-primary" onclick="resetAllData()" style="padding:10px 24px;font-size:13px;">🔄 重置所有已保存数据</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// 重置所有localStorage中的数据（如果有保存的话）
+function resetAllData() {
+  if (!confirm('确定要清除所有本地保存的数据吗？')) {
+    return;
+  }
+  
+  // 清除可能的本地存储
+  try {
+    localStorage.clear();
+    sessionStorage.clear();
+    alert('已清除所有本地数据！');
+  } catch(e) {
+    alert('清除数据时出现错误：' + e.message);
+  }
+}
+</script>
+
+</body>
+</html>

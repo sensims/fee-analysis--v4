@@ -1,0 +1,2185 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>三部SAP门店费用分析 - 手机版 v2</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ==================== Impeccable 设计系统 v2 ==================== */
+:root {
+  --primary: #4f46e5;
+  --primary-light: #818cf8;
+  --primary-dark: #3730a3;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-500: #6b7280;
+  --gray-700: #374151;
+  --gray-900: #111827;
+  --radius: 16px;
+  --radius-sm: 12px;
+  --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  background: var(--gray-50);
+  color: var(--gray-900);
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  padding-bottom: 80px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==================== 头部 ==================== */
+.header {
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--primary-light) 100%);
+  color: white;
+  padding: 20px 16px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 200px;
+  height: 200px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+  filter: blur(40px);
+}
+
+.header h1 {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+  position: relative;
+}
+
+.header p {
+  opacity: 0.9;
+  font-size: 12px;
+  font-weight: 500;
+  position: relative;
+}
+
+.header .subtitle {
+  font-size: 11px;
+  opacity: 0.75;
+  margin-top: 8px;
+  position: relative;
+}
+
+.header .btn-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  position: relative;
+}
+
+.header .btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.2);
+  color: white;
+  transition: all 0.2s;
+}
+
+.header .btn: active {
+  background: rgba(255,255,255,0.3);
+  transform: scale(0.98);
+}
+
+/* ==================== 上传区域 ==================== */
+.upload-section {
+  background: white;
+  border-radius: var(--radius);
+  padding: 24px 16px;
+  margin: 12px;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.upload-section::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--success), var(--warning));
+}
+
+.upload-area {
+  border: 2.5px dashed var(--gray-300);
+  border-radius: var(--radius-sm);
+  padding: 32px 16px;
+  background: var(--gray-50);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.upload-area: active {
+  border-color: var(--success);
+  background: #ecfdf5;
+  transform: scale(0.98);
+}
+
+.upload-area.drag-over {
+  border-color: var(--primary);
+  background: #eef2ff;
+  transform: scale(1.02);
+}
+
+.upload-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  display: block;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.upload-text {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gray-700);
+  margin-bottom: 8px;
+}
+
+.upload-hint {
+  font-size: 11px;
+  color: var(--gray-500);
+  line-height: 1.6;
+}
+
+input[type="file"] { display: none; }
+
+/* ==================== 按钮 ==================== */
+.btn {
+  padding: 14px 24px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 48px;
+  min-width: 120px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  letter-spacing: 0.3px;
+}
+
+.btn: active {
+  transform: scale(0.96);
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
+}
+
+.btn-primary: active {
+  background: var(--primary-dark);
+}
+
+.btn-success {
+  background: var(--success);
+  color: white;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+}
+
+/* ==================== 指标卡片 ==================== */
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 12px;
+}
+
+.card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card: active {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+.card: nth-child(1)::before { background: linear-gradient(90deg, #ef4444, #f87171); }
+.card: nth-child(2)::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.card: nth-child(3)::before { background: linear-gradient(90deg, #10b981, #34d399); }
+.card: nth-child(4)::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+
+.card .icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.card .label {
+  font-size: 11px;
+  color: var(--gray-500);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.card .value {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--gray-900);
+  letter-spacing: -0.5px;
+}
+
+/* ==================== 页面容器 ==================== */
+.dashboard { display: none; }
+.dashboard.active { display: block; }
+
+.container {
+  max-width: 100%;
+  padding: 12px;
+}
+
+/* ==================== 页面标题栏 ==================== */
+.page-header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  padding: 20px 16px;
+  margin: -12px -12px 16px -12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  animation: fadeInUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-header-icon {
+  font-size: 40px;
+  line-height: 1;
+  background: rgba(255, 255, 255, 0.2);
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+}
+
+.page-header-content {
+  flex: 1;
+}
+
+.page-header-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+}
+
+.page-header-subtitle {
+  font-size: 13px;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+/* ==================== 区块 ==================== */
+.section {
+  background: white;
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--gray-900);
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--gray-100);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title::before {
+  content: '';
+  width: 4px;
+  height: 20px;
+  background: var(--primary);
+  border-radius: 2px;
+  display: inline-block;
+}
+
+/* ==================== 过滤器栏 ==================== */
+.filter-bar {
+  display: flex;
+  overflow-x: auto;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.filter-bar::-webkit-scrollbar { display: none; }
+
+.filter-bar label {
+  font-size: 12px;
+  color: var(--gray-700);
+  font-weight: 600;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+}
+
+.filter-bar select {
+  padding: 10px 32px 10px 12px;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  background: white url("data: image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 12px center;
+  cursor: pointer;
+  min-height: 40px;
+  appearance: none;
+  -webkit-appearance: none;
+  white-space: nowrap;
+}
+
+.filter-bar select: focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+/* ==================== 表格 ==================== */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gray-200);
+  margin: 0 -12px;
+  padding: 0 12px;
+}
+
+.table-wrap::-webkit-scrollbar { height: 4px; }
+.table-wrap::-webkit-scrollbar-track { background: var(--gray-100); border-radius: 2px; }
+.table-wrap::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 2px; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 100%;
+}
+
+thead {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+th {
+  background: var(--gray-900);
+  color: white;
+  padding: 10px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: left;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+
+th.right, td.right { text-align: right; }
+
+tr: nth-child(even) { background: var(--gray-50); }
+
+tr: active {
+  background: #eef2ff !important;
+}
+
+td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--gray-200);
+  font-size: 13px;
+}
+
+/* ==================== 数据卡片（明细页） ==================== */
+.data-card {
+  background: white;
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin: 8px 12px;
+  box-shadow: var(--shadow);
+}
+
+.data-card .store-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 12px;
+}
+
+.data-card .store-name {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--gray-900);
+  margin-bottom: 4px;
+}
+
+.data-card .badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #eef2ff;
+  color: var(--primary);
+  white-space: nowrap;
+}
+
+.badge.purple {
+  background: #f3e8ff;
+  color: #7c3aed;
+}
+
+.data-card .total-amount {
+  text-align: right;
+}
+
+.data-card .total-value {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.data-card .total-label {
+  font-size: 11px;
+  color: var(--gray-500);
+}
+
+/* ==================== 条形图 ==================== */
+.bar-chart {
+  padding-top: 12px;
+  border-top: 1px solid var(--gray-100);
+}
+
+.bar-chart .bar-label {
+  font-size: 11px;
+  color: var(--gray-500);
+  margin-bottom: 8px;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.bar-month {
+  width: 32px;
+  font-size: 11px;
+  color: var(--gray-500);
+  text-align: right;
+  padding-right: 8px;
+}
+
+.bar-track {
+  flex: 1;
+  height: 20px;
+  background: var(--gray-100);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--primary-light), var(--primary));
+  transition: width 0.3s ease;
+}
+
+.bar-value {
+  width: 70px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-900);
+  text-align: right;
+  padding-left: 8px;
+}
+
+/* ==================== 图表容器 ==================== */
+.chart-box {
+  position: relative;
+  height: 240px;
+  margin-bottom: 16px;
+}
+
+/* ==================== 消息 ==================== */
+.error-msg, .success-msg, .loading {
+  display: none;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  margin: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.error-msg {
+  background: #fef2f2;
+  color: #dc2626;
+  border-left: 4px solid #ef4444;
+}
+
+.error-msg.active { display: block; }
+
+.success-msg {
+  background: #ecfdf5;
+  color: #059669;
+  border-left: 4px solid #10b981;
+}
+
+.success-msg.active { display: block; }
+
+.loading {
+  text-align: center;
+  color: var(--primary);
+}
+
+.loading.active { display: block; }
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--gray-200);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==================== 底部导航 ==================== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--gray-200);
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 0;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  z-index: 1000;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  min-width: 64px;
+  min-height: 56px;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  color: var(--gray-500);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.nav-btn: active {
+  background: var(--gray-100);
+  transform: scale(0.95);
+}
+
+.nav-btn.active {
+  color: var(--primary);
+}
+
+.nav-btn.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  background: var(--primary);
+  border-radius: 0 0 2px 2px;
+}
+
+.nav-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+/* ==================== 空状态 ==================== */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--gray-500);
+}
+
+/* ==================== 汇总卡片 ==================== */
+.summary-cards {
+  padding: 8px;
+}
+
+.summary-card {
+  background: white;
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.summary-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+.summary-card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.summary-card .store-info {
+  flex: 1;
+}
+
+.summary-card .store-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--gray-900);
+  margin-bottom: 4px;
+}
+
+.summary-card .budget-subject {
+  font-size: 12px;
+  color: var(--gray-500);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.summary-card .amount-badge {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white;
+  padding: 8px 14px;
+  border-radius: 12px;
+  text-align: right;
+  min-width: 100px;
+}
+
+.summary-card .amount-value {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.summary-card .amount-label {
+  font-size: 10px;
+  opacity: 0.9;
+  margin-top: 2px;
+}
+
+/* 进度条 */
+.progress-section {
+  margin: 16px 0;
+  padding: 12px;
+  background: var(--gray-50);
+  border-radius: 12px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.progress-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gray-700);
+}
+
+.progress-percentage {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.progress-track {
+  width: 100%;
+  height: 12px;
+  background: var(--gray-200);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.3) 50%,
+    rgba(255,255,255,0) 100%
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.progress-safe { background: linear-gradient(90deg, #10b981, #34d399); }
+.progress-warning { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.progress-danger { background: linear-gradient(90deg, #f97316, #fb923c); }
+.progress-over { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--gray-500);
+}
+
+.progress-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.progress-stat {
+  background: white;
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.progress-stat .stat-label {
+  font-size: 10px;
+  color: var(--gray-500);
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.progress-stat .stat-value {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--gray-900);
+}
+
+.progress-stat .stat-value.safe { color: var(--success); }
+.progress-stat .stat-value.warning { color: var(--warning); }
+.progress-stat .stat-value.danger { color: var(--danger); }
+
+/* 卡片底部信息 */
+.summary-card .card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid var(--gray-100);
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--gray-500);
+}
+
+.summary-card .status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.status-safe {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.status-warning {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.status-danger {
+  background: #fff7ed;
+  color: #ea580c;
+}
+
+.status-over {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* ==================== 动画 ==================== */
+.section, .card, .data-card, .summary-card {
+  animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==================== 打印样式 ==================== */
+@media print {
+  .upload-section, .bottom-nav, .filter-bar, .header .btn-group { display: none; }
+  .section { page-break-inside: avoid; }
+  body { padding-bottom: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- 上传页面 -->
+<div class="page-view" id="pageUpload">
+  <div class="header">
+    <h1>📊 门店费用分析</h1>
+    <p>三部SAP门店费用分析工具</p>
+    <p class="subtitle">📥 数据来源：企业微信 → 数据魔方 → 财务智榄</p>
+    <div class="btn-group">
+      <button class="btn" onclick="goHome()">🏠 返回主页</button>
+      <button class="btn" onclick="resetAll()">🔄 重置</button>
+    </div>
+  </div>
+  
+  <div class="container">
+    <div class="upload-section">
+      <div class="upload-area" id="uploadArea">
+        <span class="upload-icon">📁</span>
+        <div class="upload-text">点击或拖拽 Excel 文件</div>
+        <div class="upload-hint">
+          支持 .xlsx, .xls 格式<br>
+          自动读取「预算执行明细」和「预算执行汇总」<br>
+          费用类别=列23 | 预算科目=列24
+        </div>
+      </div>
+      <input type="file" id="fileInput" accept=".xlsx,.xls">
+      <div style="display: flex;gap: 12px;margin-top: 16px;">
+        <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()" style="flex: 1;">选择文件</button>
+      </div>
+      <div class="error-msg" id="errorMsg"></div>
+      <div class="success-msg" id="successMsg"></div>
+    </div>
+
+    <div class="loading" id="loading">
+      <div class="loading-spinner"></div>
+      <p>正在解析数据并生成可视化报告...</p>
+    </div>
+
+    <div class="cards" id="cards"></div>
+  </div>
+</div>
+
+<!-- 仪表盘 - 包含4个数据页面 -->
+<div class="dashboard" id="dashboard" style="display: none;">
+  <!-- 页面1: 明细页（卡片式布局） -->
+  <div class="page-view" id="pageTable" style="display: none;">
+    <div class="page-header">
+      <div class="page-header-icon">📋</div>
+      <div class="page-header-content">
+        <div class="page-header-title">费用明细</div>
+        <div class="page-header-subtitle">查看门店费用明细数据</div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="section">
+        <div class="filter-bar">
+          <label>🏪 门店：</label>
+          <select id="storeFilter" onchange="onStoreChange()">
+            <option value="all">全部门店</option>
+          </select>
+          <label>📂 类别：</label>
+          <select id="catFilter" onchange="renderTable()">
+            <option value="all">全部类别</option>
+          </select>
+          <label>📊 科目：</label>
+          <select id="budgetFilter" onchange="renderTable()">
+            <option value="all">全部科目</option>
+          </select>
+        </div>
+        <div id="detailTableWrap"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 页面2: 趋势页 -->
+  <div class="page-view" id="pageTrend" style="display: none;">
+    <div class="page-header">
+      <div class="page-header-icon">📈</div>
+      <div class="page-header-content">
+        <div class="page-header-title">趋势分析</div>
+        <div class="page-header-subtitle">分析费用变化趋势</div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="section">
+        <div class="filter-bar">
+          <label>🏪 门店：</label>
+          <select id="trendStoreFilter" onchange="renderTrend()">
+            <option value="all">全部门店</option>
+          </select>
+          <label>📊 维度：</label>
+          <select id="trendDimFilter" onchange="renderTrend()">
+            <option value="category">按费用类别</option>
+            <option value="budget">按预算科目</option>
+          </select>
+        </div>
+        <div class="chart-box"><canvas id="trendChart"></canvas></div>
+        <div class="table-wrap" style="margin-top: 16px;">
+          <table>
+            <thead>
+              <tr>
+                <th id="trendDimHeader">费用类别</th>
+                <th class="right">1月</th>
+                <th class="right">2月</th>
+                <th class="right">3月</th>
+                <th class="right">4月</th>
+                <th class="right">5月</th>
+                <th class="right">6月</th>
+                <th class="right">趋势</th>
+              </tr>
+            </thead>
+            <tbody id="trendTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 页面3: 图表页 -->
+  <div class="page-view" id="pageCharts" style="display: none;">
+    <div class="page-header">
+      <div class="page-header-icon">🥧</div>
+      <div class="page-header-content">
+        <div class="page-header-title">数据图表</div>
+        <div class="page-header-subtitle">可视化费用分布</div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="section">
+        <div class="section-title">🥧 费用类别占比</div>
+        <div class="chart-box"><canvas id="chartCatPie"></canvas></div>
+      </div>
+      <div class="section">
+        <div class="section-title">📊 预算科目分布</div>
+        <div class="chart-box"><canvas id="chartBudgetPie"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 页面4: 汇总页 -->
+  <div class="page-view" id="pageSummary" style="display: none;">
+    <div class="page-header">
+      <div class="page-header-icon">📑</div>
+      <div class="page-header-content">
+        <div class="page-header-title">预算汇总</div>
+        <div class="page-header-subtitle">预算执行汇总数据</div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="section">
+        <div id="summaryTableWrap"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 底部导航 -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" onclick="switchView('upload')">
+    <span class="nav-icon">📁</span>
+    <span class="nav-label">上传</span>
+  </button>
+  <button class="nav-btn" onclick="switchView('table')">
+    <span class="nav-icon">📋</span>
+    <span class="nav-label">明细</span>
+  </button>
+  <button class="nav-btn" onclick="switchView('trend')">
+    <span class="nav-icon">📈</span>
+    <span class="nav-label">趋势</span>
+  </button>
+  <button class="nav-btn" onclick="switchView('summary')">
+    <span class="nav-icon">📑</span>
+    <span class="nav-label">汇总</span>
+  </button>
+  <button class="nav-btn" onclick="switchView('charts')">
+    <span class="nav-icon">🥧</span>
+    <span class="nav-label">图表</span>
+  </button>
+</nav>
+
+<script>
+// ==================== 全局变量 ====================
+var workbook = null;
+var storeMonthly = [];
+var categoryData = [];
+var budgetData = [];
+var detailData = [];
+var summarySheetData = null;
+var summaryHeaders = [];
+var chartInstances = {};
+var currentView = 'upload';
+
+// ==================== 初始化事件绑定 ====================
+document.addEventListener('DOMContentLoaded', function() {
+  var uploadArea = document.getElementById('uploadArea');
+  var fileInput = document.getElementById('fileInput');
+  
+  uploadArea.addEventListener('click', function(e) {
+    if (e.target === uploadArea || e.target.parentElement === uploadArea) {
+      fileInput.click();
+    }
+  });
+  
+  uploadArea.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    uploadArea.classList.add('drag-over');
+  });
+  
+  uploadArea.addEventListener('dragleave', function() {
+    uploadArea.classList.remove('drag-over');
+  });
+  
+  uploadArea.addEventListener('drop', function(e) {
+    e.preventDefault();
+    uploadArea.classList.remove('drag-over');
+    if (e.dataTransfer.files.length > 0) {
+      handleFile(e.dataTransfer.files[0]);
+    }
+  });
+  
+  fileInput.addEventListener('change', function(e) {
+    if (e.target.files.length > 0) {
+      handleFile(e.target.files[0]);
+    }
+  });
+});
+
+// ==================== 文件处理 ====================
+function handleFile(file) {
+  var fileName = file.name;
+  var fileExt = fileName.split('.').pop().toLowerCase();
+  
+  if (!['xlsx', 'xls'].includes(fileExt)) {
+    showError('请上传Excel文件（.xlsx 或 .xls 格式）');
+    return;
+  }
+  
+  hideError();
+  document.getElementById('uploadArea').innerHTML = 
+    '<span class="upload-icon">✅</span>' +
+    '<div class="upload-text">已选择: ' + fileName + '</div>' +
+    '<div class="upload-hint">文件大小: ' + (file.size / 1024).toFixed(2) + ' KB<br>正在自动解析...</div>';
+  
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      workbook = XLSX.read(e.target.result, { type: 'array' });
+      showSuccess('Excel文件读取成功！正在生成报告...');
+      console.log('工作表名称:', workbook.SheetNames);
+      // 自动处理数据
+      setTimeout(function() {
+        processExcel();
+      }, 500);
+    } catch (err) {
+      showError('读取Excel文件失败: ' + err.message);
+      console.error('Excel读取错误:', err);
+    }
+  };
+  reader.onerror = function() {
+    showError('文件读取失败，请重试');
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ==================== 消息显示 ====================
+function showError(msg) {
+  var errorDiv = document.getElementById('errorMsg');
+  errorDiv.textContent = '❌ ' + msg;
+  errorDiv.classList.add('active');
+  setTimeout(function() { errorDiv.classList.remove('active'); }, 5000);
+}
+
+function hideError() {
+  document.getElementById('errorMsg').classList.remove('active');
+}
+
+function showSuccess(msg) {
+  var successDiv = document.getElementById('successMsg');
+  successDiv.textContent = '✅ ' + msg;
+  successDiv.classList.add('active');
+  setTimeout(function() { successDiv.classList.remove('active'); }, 3000);
+}
+
+// ==================== Excel数据处理 ====================
+function processExcel() {
+  if (!workbook) {
+    showError('请先上传Excel文件');
+    return;
+  }
+  
+  document.getElementById('loading').classList.add('active');
+  
+  setTimeout(function() {
+    try {
+      parseExcelData();
+      renderDashboard();
+      document.getElementById('loading').classList.remove('active');
+      showSuccess('分析报告生成完成！');
+      // 自动切换到明细页
+      switchView('table');
+    } catch (err) {
+      document.getElementById('loading').classList.remove('active');
+      showError('数据处理失败: ' + err.message);
+      console.error('数据处理错误:', err);
+    }
+  }, 500);
+}
+
+function parseExcelData() {
+  // 自动查找"预算执行明细"sheet
+  var targetSheetName = null;
+  for (var s = 0; s < workbook.SheetNames.length; s++) {
+    if (workbook.SheetNames[s].indexOf('预算执行明细') >= 0) {
+      targetSheetName = workbook.SheetNames[s];
+      break;
+    }
+  }
+  
+  if (!targetSheetName) {
+    targetSheetName = workbook.SheetNames[0];
+    console.warn('未找到"预算执行明细"sheet，使用第一个sheet:', targetSheetName);
+  } else {
+    console.log('找到目标sheet:', targetSheetName);
+  }
+  
+  var firstSheet = workbook.Sheets[targetSheetName];
+  var data = XLSX.utils.sheet_to_json(firstSheet, { header: 1, raw: true });
+  
+  storeMonthly = [];
+  categoryData = [];
+  budgetData = [];
+  detailData = [];
+  
+  var categoryMap = {};
+  var budgetMap = {};
+  var storeDataMap = {};
+  
+  var sapStoreCol = 34;
+  var amountCol = 18;
+  var monthCol = 1;
+  var categoryCol = 22;
+  var budgetCol = 23;
+  
+  function normalizeStoreName(storeName) {
+    if (!storeName) return storeName;
+    var prefixes = ['广州大部广州门店三部','广州大部','广州门店三部','广州三部','门店三部','广州大部门店三部','大部门店三部'];
+    var normalized = String(storeName);
+    for (var p = 0; p < prefixes.length; p++) {
+      if (normalized.indexOf(prefixes[p]) === 0) {
+        normalized = normalized.substring(prefixes[p].length);
+        break;
+      }
+    }
+    return normalized;
+  }
+  
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
+    if (!row) continue;
+    
+    var store = row[sapStoreCol] ? normalizeStoreName(String(row[sapStoreCol]).trim()) : '';
+    if (!store || store === '') continue;
+    
+    var category = row[categoryCol] ? String(row[categoryCol]).trim() : '未分类';
+    if (category === '') category = '未分类';
+    
+    var budget = row[budgetCol] ? String(row[budgetCol]).trim() : '未分配';
+    if (budget === '') budget = '未分配';
+    
+    var amount = parseFloat(row[amountCol]) || 0;
+    if (amount === 0) continue;
+    
+    var month = 0;
+    if (row[monthCol]) {
+      var monthValue = row[monthCol];
+      if (monthValue instanceof Date) {
+        month = monthValue.getMonth() + 1;
+      } else if (typeof monthValue === 'number') {
+        try {
+          var excelEpoch = new Date(1899, 11, 30);
+          var date = new Date(excelEpoch.getTime() + monthValue * 24 * 60 * 60 * 1000);
+          month = date.getMonth() + 1;
+        } catch (e) {
+          if (monthValue >= 1 && monthValue <= 12) month = Math.floor(monthValue);
+        }
+      } else if (typeof monthValue === 'string') {
+        var match = monthValue.match(/(\d{1,2})\s*月/);
+        if (match) month = parseInt(match[1]);
+      }
+    }
+    
+    if (month < 1 || month > 12) continue;
+    
+    if (!storeDataMap[store]) {
+      storeDataMap[store] = {
+        store: store,
+        displayName: store,
+        m1: 0, m2: 0, m3: 0, m4: 0, m5: 0, m6: 0,
+        total: 0,
+        categories: {},
+        budgets: {}
+      };
+    }
+    
+    var monthField = 'm' + month;
+    storeDataMap[store][monthField] += amount;
+    storeDataMap[store].total += amount;
+    
+    if (!storeDataMap[store].categories[category]) storeDataMap[store].categories[category] = 0;
+    storeDataMap[store].categories[category] += amount;
+    
+    if (!storeDataMap[store].budgets[budget]) storeDataMap[store].budgets[budget] = 0;
+    storeDataMap[store].budgets[budget] += amount;
+    
+    if (!categoryMap[category]) categoryMap[category] = 0;
+    categoryMap[category] += amount;
+    
+    if (!budgetMap[budget]) budgetMap[budget] = 0;
+    budgetMap[budget] += amount;
+    
+    detailData.push({
+      store: store,
+      displayName: store,
+      category: category,
+      budget: budget,
+      month: month,
+      amount: amount
+    });
+  }
+  
+  storeMonthly = Object.values(storeDataMap);
+  categoryData = Object.keys(categoryMap).map(function(cat) {
+    return { cat: cat, total: categoryMap[cat] };
+  }).sort(function(a, b) { return b.total - a.total; });
+  
+  budgetData = Object.keys(budgetMap).map(function(bg) {
+    return { cat: bg, total: budgetMap[bg] };
+  }).sort(function(a, b) { return b.total - a.total; });
+  
+  parseSummarySheet();
+}
+
+// ==================== 汇总表解析 ====================
+function parseSummarySheet() {
+  var targetSheetName = null;
+  for (var s = 0; s < workbook.SheetNames.length; s++) {
+    if (workbook.SheetNames[s].indexOf('预算执行汇总') >= 0) {
+      targetSheetName = workbook.SheetNames[s];
+      break;
+    }
+  }
+  
+  if (!targetSheetName) {
+    summarySheetData = null;
+    summaryHeaders = [];
+    return;
+  }
+  
+  var sheet = workbook.Sheets[targetSheetName];
+  summarySheetData = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true });
+  
+  var headerRow = -1;
+  for (var i = 0; i < Math.min(20, summarySheetData.length); i++) {
+    if (!summarySheetData[i] || summarySheetData[i].length === 0) continue;
+    var rowStr = JSON.stringify(summarySheetData[i]).toLowerCase();
+    if (rowStr.indexOf('门店') >= 0 || rowStr.indexOf('sap') >= 0 || 
+        rowStr.indexOf('费用') >= 0 || rowStr.indexOf('预算') >= 0) {
+      headerRow = i;
+      break;
+    }
+  }
+  
+  if (headerRow < 0) headerRow = 0;
+  summaryHeaders = summarySheetData[headerRow] || [];
+}
+
+// ==================== 仪表盘渲染 ====================
+function renderDashboard() {
+  renderCards();
+  populateFilters();
+}
+
+function renderCards() {
+  var totalAll = storeMonthly.reduce(function(s, r) { return s + r.total; }, 0);
+  document.getElementById('cards').innerHTML = 
+    '<div class="card"><span class="icon">🏪</span><span class="label">门店数</span><span class="value">' + storeMonthly.length + '</span></div>' +
+    '<div class="card"><span class="icon">📂</span><span class="label">费用类别</span><span class="value">' + categoryData.length + '</span></div>' +
+    '<div class="card"><span class="icon">📊</span><span class="label">预算科目</span><span class="value">' + budgetData.length + '</span></div>' +
+    '<div class="card"><span class="icon">💰</span><span class="label">总费用(万元)</span><span class="value">' + (totalAll / 10000).toFixed(2) + '</span></div>';
+}
+
+function populateFilters() {
+  var storeFilter = document.getElementById('storeFilter');
+  var catFilter = document.getElementById('catFilter');
+  var budgetFilter = document.getElementById('budgetFilter');
+  var trendStoreFilter = document.getElementById('trendStoreFilter');
+  
+  storeFilter.innerHTML = '<option value="all">全部门店</option>';
+  catFilter.innerHTML = '<option value="all">全部类别</option>';
+  budgetFilter.innerHTML = '<option value="all">全部科目</option>';
+  trendStoreFilter.innerHTML = '<option value="all">全部门店</option>';
+  
+  storeMonthly.forEach(function(s) {
+    var opt = document.createElement('option');
+    opt.value = s.store;
+    opt.textContent = s.displayName || s.store;
+    storeFilter.appendChild(opt.cloneNode(true));
+    trendStoreFilter.appendChild(opt);
+  });
+  
+  categoryData.forEach(function(c) {
+    var opt = document.createElement('option');
+    opt.value = c.cat;
+    opt.textContent = c.cat;
+    catFilter.appendChild(opt);
+  });
+  
+  budgetData.forEach(function(b) {
+    var opt = document.createElement('option');
+    opt.value = b.cat;
+    opt.textContent = b.cat;
+    budgetFilter.appendChild(opt);
+  });
+}
+
+// ==================== 过滤器联动 ====================
+function onStoreChange() {
+  var storeF = document.getElementById('storeFilter').value;
+  var catSel = document.getElementById('catFilter');
+  var budgetSel = document.getElementById('budgetFilter');
+  
+  var catsForStore = storeF === 'all' ? 
+    categoryData.map(function(d) { return d.cat; }) : 
+    [...new Set(detailData.filter(function(d) { return d.store === storeF; }).map(function(d) { return d.category; }))].sort();
+  
+  var budgetsForStore = storeF === 'all' ? 
+    budgetData.map(function(d) { return d.cat; }) : 
+    [...new Set(detailData.filter(function(d) { return d.store === storeF; }).map(function(d) { return d.budget; }))].sort();
+  
+  catSel.innerHTML = '<option value="all">全部类别</option>';
+  catsForStore.forEach(function(c) {
+    var opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c;
+    catSel.appendChild(opt);
+  });
+  
+  budgetSel.innerHTML = '<option value="all">全部科目</option>';
+  budgetsForStore.forEach(function(b) {
+    var opt = document.createElement('option');
+    opt.value = b;
+    opt.textContent = b;
+    budgetSel.appendChild(opt);
+  });
+  
+  renderTable();
+}
+
+// ==================== 明细页卡片式布局（含条形图） ====================
+function renderTable() {
+  var storeF = document.getElementById('storeFilter').value;
+  var catF = document.getElementById('catFilter').value;
+  var budgetF = document.getElementById('budgetFilter').value;
+  
+  var filtered = detailData.filter(function(d) {
+    if (storeF !== 'all' && d.store !== storeF) return false;
+    if (catF !== 'all' && d.category !== catF) return false;
+    if (budgetF !== 'all' && d.budget !== budgetF) return false;
+    return true;
+  });
+  
+  var storeCatMap = {};
+  filtered.forEach(function(d) {
+    var key = d.store + '|' + d.category + '|' + d.budget;
+    if (!storeCatMap[key]) {
+      storeCatMap[key] = {
+        store: d.store,
+        displayName: d.displayName || d.store,
+        category: d.category,
+        budget: d.budget,
+        m1: 0, m2: 0, m3: 0, m4: 0, m5: 0, m6: 0,
+        total: 0
+      };
+    }
+    var monthField = 'm' + d.month;
+    if (storeCatMap[key][monthField] !== undefined) {
+      storeCatMap[key][monthField] += d.amount;
+    }
+    storeCatMap[key].total += d.amount;
+  });
+  
+  var rows = Object.values(storeCatMap).map(function(s) {
+    var months = [s.m1, s.m2, s.m3, s.m4, s.m5, s.m6].filter(function(v) { return v > 0; });
+    var avg = months.length > 0 ? months.reduce(function(a, b) { return a + b; }, 0) / months.length : 0;
+    return {
+      store: s.store,
+      displayName: s.displayName,
+      category: s.category,
+      budget: s.budget,
+      m1: s.m1,
+      m2: s.m2,
+      m3: s.m3,
+      m4: s.m4,
+      m5: s.m5,
+      m6: s.m6,
+      total: s.total,
+      avg: avg
+    };
+  });
+  
+  var html = '';
+  if (rows.length === 0) {
+    html = '<div class="empty-state"><div style="font-size: 48px;margin-bottom: 12px;">📭</div><div>没有找到匹配的数据</div></div>';
+  } else {
+    html = '<div style="padding: 8px;">';
+    rows.forEach(function(r) {
+      html += '<div class="data-card">';
+      html += '<div class="store-row">';
+      html += '<div><div class="store-name">' + r.store + '</div>';
+      html += '<div class="badges">';
+      html += '<span class="badge">' + r.category + '</span>';
+      html += '<span class="badge purple">' + r.budget + '</span>';
+      html += '</div></div>';
+      html += '<div class="total-amount"><div class="total-value">' + r.total.toLocaleString('zh', { minimumFractionDigits: 2 }) + '</div>';
+      html += '<div class="total-label">合计</div></div></div>';
+      html += '<div class="bar-chart">';
+      html += '<div class="bar-label">月度费用分布</div>';
+      
+      var monthValues = [r.m1, r.m2, r.m3, r.m4, r.m5, r.m6];
+      var monthData = monthValues.filter(function(v) { return v > 0; });
+      var maxValue = monthData.length > 0 ? Math.max.apply(null, monthData) : 1;
+      var monthNames = ['1月', '2月', '3月', '4月', '5月', '6月'];
+      
+      for (var i = 0; i < 6; i++) {
+        var mValue = monthValues[i];
+        if (mValue > 0) {
+          var barWidth = (mValue / maxValue * 100).toFixed(1);
+          html += '<div class="bar-row">';
+          html += '<div class="bar-month">' + monthNames[i] + '</div>';
+          html += '<div class="bar-track">';
+          html += '<div class="bar-fill" style="width:' + barWidth + '%;"></div>';
+          html += '</div>';
+          html += '<div class="bar-value">' + mValue.toLocaleString('zh', { minimumFractionDigits: 2 }) + '</div>';
+          html += '</div>';
+        }
+      }
+      html += '</div></div>';
+    });
+    html += '</div>';
+  }
+  document.getElementById('detailTableWrap').innerHTML = html;
+}
+
+// ==================== 趋势分析 ====================
+function renderTrend() {
+  var storeF = document.getElementById('trendStoreFilter').value;
+  var dim = document.getElementById('trendDimFilter').value;
+  
+  document.getElementById('trendDimHeader').textContent = dim === 'category' ? '费用类别' : '预算科目';
+  
+  var filtered = detailData.filter(function(d) {
+    if (storeF !== 'all' && d.store !== storeF) return false;
+    return true;
+  });
+  
+  var dimMonthlyMap = {};
+  filtered.forEach(function(d) {
+    var key = dim === 'category' ? d.category : d.budget;
+    if (!dimMonthlyMap[key]) {
+      dimMonthlyMap[key] = { name: key, m1: 0, m2: 0, m3: 0, m4: 0, m5: 0, m6: 0 };
+    }
+    var monthField = 'm' + d.month;
+    dimMonthlyMap[key][monthField] += d.amount;
+  });
+  
+  var rows = Object.values(dimMonthlyMap).map(function(s) {
+    var months = [1, 2, 3, 4, 5, 6].filter(function(m) { return s['m'+m] > 0; });
+    var avg = months.length > 0 ? months.reduce(function(a, b) { return a + s['m'+b]; }, 0) / months.length : 0;
+    
+    var nonZeroMonths = months.map(function(m) { return { month: m, amount: s['m'+m] }; });
+    var trendIcon = '<span style="color: var(--gray-500);">→ 无数据</span>';
+    if (nonZeroMonths.length >= 2) {
+      var current = nonZeroMonths[nonZeroMonths.length-1].amount;
+      var prev = nonZeroMonths[nonZeroMonths.length-2].amount;
+      if (prev > 0) {
+        if (current > prev) trendIcon = '<span style="color: var(--success);font-weight: 700;">↑ 上升</span>';
+        else if (current < prev) trendIcon = '<span style="color: var(--danger);font-weight: 700;">↓ 下降</span>';
+        else trendIcon = '<span style="color: var(--gray-500);">→ 平稳</span>';
+      }
+    } else if (nonZeroMonths.length === 1) {
+      trendIcon = '<span style="color: var(--gray-500);">→ 单月数据</span>';
+    }
+    
+    return {
+      name: s.name,
+      m1: s.m1,
+      m2: s.m2,
+      m3: s.m3,
+      m4: s.m4,
+      m5: s.m5,
+      m6: s.m6,
+      avg: avg,
+      trendIcon: trendIcon
+    };
+  }).sort(function(a, b) { return b.avg - a.avg; });
+  
+  var tbody = document.getElementById('trendTableBody');
+  tbody.innerHTML = '';
+  
+  rows.forEach(function(r) {
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td><strong>' + r.name + '</strong></td>' +
+      '<td class="right">' + (r.m1 ? r.m1.toLocaleString('zh', { minimumFractionDigits: 2 }) : '—') + '</td>' +
+      '<td class="right">' + (r.m2 ? r.m2.toLocaleString('zh', { minimumFractionDigits: 2 }) : '—') + '</td>' +
+      '<td class="right">' + (r.m3 ? r.m3.toLocaleString('zh', { minimumFractionDigits: 2 }) : '—') + '</td>' +
+      '<td class="right">' + (r.m4 ? r.m4.toLocaleString('zh', { minimumFractionDigits: 2 }) : '—') + '</td>' +
+      '<td class="right">' + (r.m5 ? r.m5.toLocaleString('zh', { minimumFractionDigits: 2 }) : '—') + '</td>' +
+      '<td class="right">' + (r.m6 ? r.m6.toLocaleString('zh', { minimumFractionDigits: 2 }) : '—') + '</td>' +
+      '<td>' + r.trendIcon + '</td>';
+    tbody.appendChild(tr);
+  });
+  
+  // 渲染趋势图表
+  if (chartInstances.trendChart) chartInstances.trendChart.destroy();
+  var topRows = rows.slice(0, 10);
+  var datasets = topRows.map(function(r, idx) {
+    var colors = ['#4f46e5','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#d946ef','#84cc16','#f97316','#14b8a6'];
+    return {
+      label: r.name,
+      data: [r.m1, r.m2, r.m3, r.m4, r.m5, r.m6],
+      borderColor: colors[idx % colors.length],
+      backgroundColor: 'transparent',
+      fill: false,
+      tension: 0.1
+    };
+  });
+  
+  chartInstances.trendChart = new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+      labels: ['1月','2月','3月','4月','5月','6月'],
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: { font: { size: 10 } }
+        }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+}
+
+// ==================== 汇总表渲染（卡片式布局）====================
+function renderSummaryTable() {
+  if (!summarySheetData || summarySheetData.length === 0) {
+    document.getElementById('summaryTableWrap').innerHTML = '<div class="empty-state"><div style="font-size: 48px;margin-bottom: 12px;">📭</div><div>未找到预算汇总数据</div></div>';
+    return;
+  }
+  
+  // 查找表头行
+  var headerRow = -1;
+  for (var i = 0; i < Math.min(20, summarySheetData.length); i++) {
+    if (!summarySheetData[i] || summarySheetData[i].length === 0) continue;
+    var rowStr = JSON.stringify(summarySheetData[i]).toLowerCase();
+    if (rowStr.indexOf('门店') >= 0 || rowStr.indexOf('sap') >= 0 || 
+        rowStr.indexOf('费用') >= 0 || rowStr.indexOf('预算') >= 0) {
+      headerRow = i;
+      break;
+    }
+  }
+  if (headerRow < 0) headerRow = 0;
+  
+  var headers = summarySheetData[headerRow] || [];
+  
+  // 查找关键列的索引 - 精确匹配用户指定的字段
+  var storeColIdx = -1, budgetSubjIdx = -1;
+  var annualBudgetIdx = -1;      // 年度预算
+  var cumulativeExecIdx = -1;    // 累计使用预算
+  var progressIdx = -1;          // 费用使用进度
+  var remainingIdx = -1;         // 剩余预算
+
+  headers.forEach(function(header, idx) {
+    if (header === undefined || header === null) return;
+    var h = String(header).toLowerCase().trim();
+
+    // 门店
+    if (h.indexOf('门店') >= 0 || h.indexOf('sap') >= 0) storeColIdx = idx;
+    // 预算科目
+    if (h.indexOf('科目') >= 0 || h.indexOf('预算科目') >= 0) budgetSubjIdx = idx;
+    // 年度预算
+    if (h.indexOf('年度预算') >= 0 || h === '年度预算') annualBudgetIdx = idx;
+    // 累计使用预算
+    if (h.indexOf('累计使用预算') >= 0 || h === '累计使用预算') cumulativeExecIdx = idx;
+    // 费用使用进度
+    if (h.indexOf('费用使用进度') >= 0 || h === '费用使用进度') progressIdx = idx;
+    // 剩余预算
+    if (h.indexOf('剩余预算') >= 0 || h === '剩余预算') remainingIdx = idx;
+  });
+
+  // 如果精确匹配没找到，尝试模糊匹配作为备选
+  if (annualBudgetIdx < 0) {
+    for (var bi = 0; bi < headers.length; bi++) {
+      if (headers[bi] && String(headers[bi]).indexOf('预算') >= 0 && String(headers[bi]).indexOf('年度') >= 0) {
+        annualBudgetIdx = bi;
+        break;
+      }
+    }
+  }
+
+  if (cumulativeExecIdx < 0) {
+    for (var ei = 0; ei < headers.length; ei++) {
+      if (headers[ei] && String(headers[ei]).indexOf('累计') >= 0 && String(headers[ei]).indexOf('使用') >= 0) {
+        cumulativeExecIdx = ei;
+        break;
+      }
+    }
+  }
+  
+  // 解析数据行并合并相同门店+科目
+  var summaryMap = {};
+  var totalBudget = 0, totalExec = 0;
+
+  for (var i = headerRow + 1; i < summarySheetData.length; i++) {
+    if (!summarySheetData[i] || summarySheetData[i].length === 0) continue;
+
+    var row = summarySheetData[i];
+    var store = storeColIdx >= 0 ? String(row[storeColIdx] || '').trim() : '';
+    var budgetSubj = budgetSubjIdx >= 0 ? String(row[budgetSubjIdx] || '未分类').trim() : '未分类';
+
+    // 创建合并键（门店+科目）
+    var key = store + '|' + budgetSubj;
+
+    // 直接从指定列读取数据
+    var annualBudget = 0;    // 年度预算
+    var cumulativeExec = 0;  // 累计使用预算
+    var progressPct = 0;     // 费用使用进度
+    var remainingBudget = 0; // 剩余预算
+
+    if (annualBudgetIdx >= 0 && row[annualBudgetIdx] !== undefined && row[annualBudgetIdx] !== null) {
+      annualBudget = parseFloat(row[annualBudgetIdx]) || 0;
+    }
+
+    if (cumulativeExecIdx >= 0 && row[cumulativeExecIdx] !== undefined && row[cumulativeExecIdx] !== null) {
+      cumulativeExec = parseFloat(row[cumulativeExecIdx]) || 0;
+    }
+
+    if (progressIdx >= 0 && row[progressIdx] !== undefined && row[progressIdx] !== null) {
+      progressPct = parseFloat(row[progressIdx]) || 0;
+    }
+
+    if (remainingIdx >= 0 && row[remainingIdx] !== undefined && row[remainingIdx] !== null) {
+      remainingBudget = parseFloat(row[remainingIdx]) || 0;
+    }
+
+    // 如果未找到精确列，尝试从原逻辑获取（向后兼容）
+    if (annualBudget === 0 && cumulativeExec === 0) {
+      // 备份原逻辑：同之前一样尝试获取预算金额和执行金额
+      var budgetAmt = 0, execAmt = 0;
+
+      if (budgetAmtIdx >= 0 && row[budgetAmtIdx] !== undefined && row[budgetAmtIdx] !== null) {
+        budgetAmt = parseFloat(row[budgetAmtIdx]) || 0;
+      }
+
+      if (execAmtIdx >= 0 && row[execAmtIdx] !== undefined && row[execAmtIdx] !== null) {
+        execAmt = parseFloat(row[execAmtIdx]) || 0;
+      }
+
+      if (budgetAmt === 0 && execAmt === 0) {
+        var numericValues = [];
+        for (var ni = 0; ni < row.length; ni++) {
+          if (typeof row[ni] === 'number' && row[ni] !== 0) {
+            numericValues.push({ idx: ni, value: row[ni] });
+          }
+        }
+        if (numericValues.length >= 2) {
+          budgetAmt = numericValues[0].value;
+          execAmt = numericValues[1].value;
+        } else if (numericValues.length === 1) {
+          budgetAmt = numericValues[0].value;
+        }
+      }
+
+      annualBudget = budgetAmt;
+      cumulativeExec = execAmt;
+    }
+
+    if (annualBudget === 0 && cumulativeExec === 0) continue;
+
+    // 合并到map中（相同门店+科目自动累加）
+    if (!summaryMap[key]) {
+      summaryMap[key] = {
+        store: store,
+        budgetSubj: budgetSubj,
+        annualBudget: 0,
+        cumulativeExec: 0,
+        remainingBudget: 0,
+        progressPct: 0  // 费用使用进度（百分比）
+      };
+    }
+
+    summaryMap[key].annualBudget += annualBudget;
+    summaryMap[key].cumulativeExec += cumulativeExec;
+
+    // 如果有费用使用进度字段，取平均值（或者最后一次的值）
+    if (progressPct > 0) {
+      // 简单处理：如果有进度字段，直接用最后一次的（因为合并后重新计算更准确）
+      summaryMap[key].progressPct = progressPct;
+    }
+
+    // 剩余预算重新计算，避免重复累加导致错误
+    summaryMap[key].remainingBudget = summaryMap[key].annualBudget - summaryMap[key].cumulativeExec;
+  }
+
+  // 转换为数组并计算总计
+  var summaryItems = [];
+  Object.keys(summaryMap).forEach(function(key) {
+    var item = summaryMap[key];
+    // 计算百分比（如果有费用使用进度字段就用，否则计算）
+    if (progressIdx >= 0) {
+      // 如果Excel中有费用使用进度字段，这里需要从原始数据获取
+      // 但因为已经合并，这里重新计算
+      item.percentage = item.annualBudget > 0 ? (item.cumulativeExec / item.annualBudget * 100) : 0;
+    } else {
+      item.percentage = item.annualBudget > 0 ? (item.cumulativeExec / item.annualBudget * 100) : 0;
+    }
+    item.remainingBudget = item.annualBudget - item.cumulativeExec;
+    totalBudget += item.annualBudget;
+    totalExec += item.cumulativeExec;
+    summaryItems.push(item);
+  });
+
+  // 按累计使用预算金额排序
+  summaryItems.sort(function(a, b) { return b.cumulativeExec - a.cumulativeExec; });
+
+  // 生成卡片HTML
+  var html = '<div class="summary-cards">';
+
+  if (summaryItems.length === 0) {
+    html += '<div class="empty-state"><div style="font-size: 48px;margin-bottom: 12px;">📭</div><div>没有找到有效的汇总数据</div></div>';
+  } else {
+    summaryItems.forEach(function(item) {
+      // 使用年度预算和累计使用预算计算
+      var percentage = item.annualBudget > 0 ? (item.cumulativeExec / item.annualBudget * 100) : (item.cumulativeExec > 0 ? 100 : 0);
+      percentage = Math.min(percentage, 100); // 上限100%用于显示
+      var actualPercentage = item.annualBudget > 0 ? (item.cumulativeExec / item.annualBudget * 100) : (item.cumulativeExec > 0 ? 999 : 0);
+
+      // 确定状态和颜色
+      var progressClass = 'progress-safe';
+      var statusClass = 'status-safe';
+      var statusText = '✅ 预算充足';
+
+      if (actualPercentage > 100) {
+        progressClass = 'progress-over';
+        statusClass = 'status-over';
+        statusText = '⚠️ 超预算';
+      } else if (actualPercentage > 85) {
+        progressClass = 'progress-danger';
+        statusClass = 'status-danger';
+        statusText = '🚨 接近上限';
+      } else if (actualPercentage > 60) {
+        progressClass = 'progress-warning';
+        statusClass = 'status-warning';
+        statusText = '⚡ 使用中';
+      }
+
+      var remaining = item.annualBudget - item.cumulativeExec;
+
+      html += '<div class="summary-card">';
+
+      // 卡片头部
+      html += '<div class="card-header">';
+      html += '<div class="store-info">';
+      html += '<div class="store-name">' + (item.store || '未指定门店') + '</div>';
+      html += '<div class="budget-subject">📊 ' + item.budgetSubj + '</div>';
+      html += '</div>';
+      html += '<div class="amount-badge">';
+      html += '<div class="amount-value">' + (item.cumulativeExec / 10000).toFixed(2) + '万</div>';
+      html += '<div class="amount-label">累计使用预算</div>';
+      html += '</div>';
+      html += '</div>';
+
+      // 进度条部分
+      html += '<div class="progress-section">';
+      html += '<div class="progress-header">';
+      html += '<div class="progress-title">费用使用进度</div>';
+      html += '<div class="progress-percentage" style="color: ' +
+        (actualPercentage > 100 ? 'var(--danger)' : actualPercentage > 85 ? 'var(--warning)' : 'var(--success)') + ';">' +
+        actualPercentage.toFixed(1) + '%</div>';
+      html += '</div>';
+      html += '<div class="progress-track">';
+      html += '<div class="progress-fill ' + progressClass + '" style="width: ' + percentage.toFixed(1) + '%;"></div>';
+      html += '</div>';
+      html += '<div class="progress-labels">';
+      html += '<span>¥0</span>';
+      html += '<span style="font-weight: 600;">年度预算: ' + (item.annualBudget / 10000).toFixed(2) + '万</span>';
+      html += '<span>¥' + (item.annualBudget / 10000).toFixed(2) + '万</span>';
+      html += '</div>';
+      html += '</div>';
+
+      // 统计信息
+      html += '<div class="progress-stats">';
+      html += '<div class="progress-stat">';
+      html += '<div class="stat-label">年度预算</div>';
+      html += '<div class="stat-value">' + (item.annualBudget / 10000).toFixed(2) + '万</div>';
+      html += '</div>';
+      html += '<div class="progress-stat">';
+      html += '<div class="stat-label">累计使用</div>';
+      html += '<div class="stat-value ' + (actualPercentage > 100 ? 'danger' : actualPercentage > 85 ? 'warning' : 'safe') + '">' +
+        (item.cumulativeExec / 10000).toFixed(2) + '万</div>';
+      html += '</div>';
+      html += '<div class="progress-stat">';
+      html += '<div class="stat-label">' + (remaining >= 0 ? '剩余预算' : '超支预算') + '</div>';
+      html += '<div class="stat-value ' + (remaining >= 0 ? 'safe' : 'danger') + '">' +
+        (Math.abs(remaining) / 10000).toFixed(2) + '万</div>';
+      html += '</div>';
+      html += '</div>';
+      
+      // 卡片底部
+      html += '<div class="card-footer">';
+      html += '<span>📅 截至6月</span>';
+      html += '<span class="status-badge ' + statusClass + '">' + statusText + '</span>';
+      html += '</div>';
+      
+      html += '</div>'; // 结束 summary-card
+    });
+    
+    // 汇总统计卡片
+    var totalPercentage = totalBudget > 0 ? (totalExec / totalBudget * 100) : 0;
+    var totalRemaining = totalBudget - totalExec;
+    var totalStatusClass = totalPercentage > 85 ? 'status-danger' : totalPercentage > 60 ? 'status-warning' : 'status-safe';
+    var totalStatusText = totalPercentage > 100 ? '⚠️ 总体超预算' : totalPercentage > 85 ? '🚨 接近预算上限' : '✅ 预算充足';
+
+    html += '<div class="summary-card" style="background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: white;">';
+    html += '<div class="card-header">';
+    html += '<div class="store-info">';
+    html += '<div class="store-name" style="color: white;">📊 总体预算执行情况</div>';
+    html += '<div class="budget-subject" style="color: rgba(255,255,255,0.9);">全部门店 + 全部科目</div>';
+    html += '</div>';
+    html += '<div class="amount-badge" style="background: rgba(255,255,255,0.2);">';
+    html += '<div class="amount-value" style="color: white;">' + (totalExec / 10000).toFixed(2) + '万</div>';
+    html += '<div class="amount-label" style="color: rgba(255,255,255,0.9);">累计使用预算</div>';
+    html += '</div>';
+    html += '</div>';
+
+    html += '<div class="progress-section" style="background: rgba(255,255,255,0.1);">';
+    html += '<div class="progress-header">';
+    html += '<div class="progress-title" style="color: rgba(255,255,255,0.95);">总体使用进度</div>';
+    html += '<div class="progress-percentage" style="color: white;">' + totalPercentage.toFixed(1) + '%</div>';
+    html += '</div>';
+    html += '<div class="progress-track" style="background: rgba(255,255,255,0.2);">';
+    html += '<div class="progress-fill" style="width: ' + Math.min(totalPercentage, 100).toFixed(1) + '%; background: linear-gradient(90deg, rgba(255,255,255,0.8), rgba(255,255,255,0.6));"></div>';
+    html += '</div>';
+    html += '</div>';
+
+    html += '<div class="progress-stats">';
+    html += '<div class="progress-stat" style="background: rgba(255,255,255,0.15);">';
+    html += '<div class="stat-label" style="color: rgba(255,255,255,0.8);">年度预算</div>';
+    html += '<div class="stat-value" style="color: white;">' + (totalBudget / 10000).toFixed(2) + '万</div>';
+    html += '</div>';
+    html += '<div class="progress-stat" style="background: rgba(255,255,255,0.15);">';
+    html += '<div class="stat-label" style="color: rgba(255,255,255,0.8);">累计使用</div>';
+    html += '<div class="stat-value" style="color: white;">' + (totalExec / 10000).toFixed(2) + '万</div>';
+    html += '</div>';
+    html += '<div class="progress-stat" style="background: rgba(255,255,255,0.15);">';
+    html += '<div class="stat-label" style="color: rgba(255,255,255,0.8);">剩余/超支</div>';
+    html += '<div class="stat-value" style="color: ' + (totalRemaining >= 0 ? '#34d399' : '#f87171') + ';">' + (Math.abs(totalRemaining) / 10000).toFixed(2) + '万</div>';
+    html += '</div>';
+    html += '<div class="progress-stat" style="background: rgba(255,255,255,0.15);">';
+    html += '<div class="stat-label" style="color: rgba(255,255,255,0.8);">剩余/超支</div>';
+    html += '<div class="stat-value" style="color: ' + (totalRemaining >= 0 ? '#34d399' : '#f87171') + ';">' + (Math.abs(totalRemaining) / 10000).toFixed(2) + '万</div>';
+    html += '</div>';
+    html += '</div>';
+    
+    html += '<div class="card-footer" style="border-top-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.8);">';
+    html += '<span>🏪 ' + summaryItems.length + ' 个预算科目</span>';
+    html += '<span class="status-badge ' + totalStatusClass + '" style="background: rgba(255,255,255,0.2);">' + totalStatusText + '</span>';
+    html += '</div>';
+    
+    html += '</div>'; // 结束总体卡片
+  }
+  
+  html += '</div>'; // 结束 summary-cards
+  
+  document.getElementById('summaryTableWrap').innerHTML = html;
+}
+
+// ==================== 图表渲染 ====================
+function renderCategoryChart() {
+  var data = categoryData.filter(function(c) { return c.total > 0; });
+  if (chartInstances.chartCatPie) chartInstances.chartCatPie.destroy();
+  chartInstances.chartCatPie = new Chart(document.getElementById('chartCatPie'), {
+    type: 'doughnut',
+    data: {
+      labels: data.map(function(c) { return c.cat; }),
+      datasets: [{
+        data: data.map(function(c) { return c.total; }),
+        backgroundColor: ['#4f46e5','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#d946ef']
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: { font: { size: 11 } }
+        }
+      }
+    }
+  });
+}
+
+function renderBudgetChart() {
+  var data = budgetData.filter(function(c) { return c.total > 0; });
+  if (chartInstances.chartBudgetPie) chartInstances.chartBudgetPie.destroy();
+  chartInstances.chartBudgetPie = new Chart(document.getElementById('chartBudgetPie'), {
+    type: 'doughnut',
+    data: {
+      labels: data.map(function(c) { return c.cat; }),
+      datasets: [{
+        data: data.map(function(c) { return c.total; }),
+        backgroundColor: ['#8b5cf6','#4f46e5','#10b981','#f59e0b','#ef4444','#06b6d4','#d946ef']
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: { font: { size: 11 } }
+        }
+      }
+    }
+  });
+}
+
+// ==================== 页面切换 ====================
+function switchView(view) {
+  // 更新底部导航状态
+  var navBtns = document.querySelectorAll('.nav-btn');
+  navBtns.forEach(function(btn) { btn.classList.remove('active'); });
+  
+  // 隐藏所有页面
+  var pages = document.querySelectorAll('.page-view');
+  pages.forEach(function(page) { page.style.display = 'none'; });
+  
+  // 隐藏dashboard
+  var dashboard = document.getElementById('dashboard');
+  
+  // 显示目标页面
+  if (view === 'upload') {
+    currentView = 'upload';
+    navBtns[0].classList.add('active');
+    document.getElementById('pageUpload').style.display = 'block';
+    dashboard.style.display = 'none';
+  } else {
+    // 显示dashboard
+    dashboard.style.display = 'block';
+    
+    if (view === 'table') {
+      currentView = 'table';
+      navBtns[1].classList.add('active');
+      document.getElementById('pageTable').style.display = 'block';
+      renderTable();
+    } else if (view === 'trend') {
+      currentView = 'trend';
+      navBtns[2].classList.add('active');
+      document.getElementById('pageTrend').style.display = 'block';
+      renderTrend();
+    } else if (view === 'summary') {
+      currentView = 'summary';
+      navBtns[3].classList.add('active');
+      document.getElementById('pageSummary').style.display = 'block';
+      renderSummaryTable();
+    } else if (view === 'charts') {
+      currentView = 'charts';
+      navBtns[4].classList.add('active');
+      document.getElementById('pageCharts').style.display = 'block';
+      renderCategoryChart();
+      renderBudgetChart();
+    }
+  }
+  
+  // 滚动到顶部
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ==================== 导航功能 ====================
+function goHome() {
+  if (confirm('确定要返回主页吗？')) {
+    window.location.href = 'index.html';
+  }
+}
+
+function resetAll() {
+  if (!confirm('确定要重置所有数据吗？')) return;
+  
+  workbook = null;
+  storeMonthly = [];
+  categoryData = [];
+  budgetData = [];
+  detailData = [];
+  summarySheetData = null;
+  summaryHeaders = [];
+  
+  document.getElementById('detailTableWrap').innerHTML = '';
+  document.getElementById('summaryTableWrap').innerHTML = '';
+  document.getElementById('cards').innerHTML = '';
+  
+  if (chartInstances.trendChart) { chartInstances.trendChart.destroy(); chartInstances.trendChart = null; }
+  if (chartInstances.chartCatPie) { chartInstances.chartCatPie.destroy(); chartInstances.chartCatPie = null; }
+  if (chartInstances.chartBudgetPie) { chartInstances.chartBudgetPie.destroy(); chartInstances.chartBudgetPie = null; }
+  
+  document.getElementById('fileInput').value = '';
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('pageUpload').style.display = 'block';
+  
+  document.getElementById('uploadArea').innerHTML = 
+    '<span class="upload-icon">📁</span>' +
+    '<div class="upload-text">点击或拖拽 Excel 文件</div>' +
+    '<div class="upload-hint">支持 .xlsx, .xls 格式<br>自动读取「预算执行明细」和「预算执行汇总」<br>费用类别=列23 | 预算科目=列24</div>';
+  
+  showSuccess('已重置所有数据');
+}
+</script>
+
+</body>
+</html>
+
