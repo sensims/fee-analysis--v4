@@ -1299,14 +1299,21 @@ function parseExcelData() {
         break;
       }
     }
+    // 剥离后为空，说明原始名称就是前缀本身，保留原始名称
+    if (normalized.trim() === '') {
+      return String(storeName);
+    }
     return normalized;
   }
+  
+  console.log('列位置 - SAP门店:', sapStoreCol, '金额:', amountCol, '月份:', monthCol, '费用类别:', categoryCol, '预算科目:', budgetCol);
   
   for (var i = 1; i < data.length; i++) {
     var row = data[i];
     if (!row) continue;
     
-    var store = row[sapStoreCol] ? normalizeStoreName(String(row[sapStoreCol]).trim()) : '';
+    var rawStore = row[sapStoreCol] ? String(row[sapStoreCol]).trim() : '';
+    var store = rawStore ? normalizeStoreName(rawStore) : '';
     if (!store || store === '') continue;
     
     var category = row[categoryCol] ? String(row[categoryCol]).trim() : '未分类';
@@ -1343,6 +1350,7 @@ function parseExcelData() {
       storeDataMap[store] = {
         store: store,
         displayName: store,
+        rawStore: rawStore,
         m1: 0, m2: 0, m3: 0, m4: 0, m5: 0, m6: 0,
         total: 0,
         categories: {},
@@ -1369,6 +1377,7 @@ function parseExcelData() {
     detailData.push({
       store: store,
       displayName: store,
+      rawStore: rawStore,
       category: category,
       budget: budget,
       month: month,
@@ -1443,10 +1452,10 @@ function populateFilters() {
   var budgetFilter = document.getElementById('budgetFilter');
   var trendStoreFilter = document.getElementById('trendStoreFilter');
   
-  storeFilter.innerHTML = '<option value="all">全部门店</option>';
+  storeFilter.innerHTML = '<option value="all">全部门店</option><option value="__sanbu__">📌 广州大部广州门店三部</option>';
   catFilter.innerHTML = '<option value="all">全部类别</option>';
   budgetFilter.innerHTML = '<option value="all">全部科目</option>';
-  trendStoreFilter.innerHTML = '<option value="all">全部门店</option>';
+  trendStoreFilter.innerHTML = '<option value="all">全部门店</option><option value="__sanbu__">📌 广州大部广州门店三部</option>';
   
   storeMonthly.forEach(function(s) {
     var opt = document.createElement('option');
@@ -1477,13 +1486,18 @@ function onStoreChange() {
   var catSel = document.getElementById('catFilter');
   var budgetSel = document.getElementById('budgetFilter');
   
-  var catsForStore = storeF === 'all' ? 
-    categoryData.map(function(d) { return d.cat; }) : 
-    [...new Set(detailData.filter(function(d) { return d.store === storeF; }).map(function(d) { return d.category; }))].sort();
-  
-  var budgetsForStore = storeF === 'all' ? 
-    budgetData.map(function(d) { return d.cat; }) : 
-    [...new Set(detailData.filter(function(d) { return d.store === storeF; }).map(function(d) { return d.budget; }))].sort();
+  var catsForStore, budgetsForStore;
+  if (storeF === 'all') {
+    catsForStore = categoryData.map(function(d) { return d.cat; });
+    budgetsForStore = budgetData.map(function(d) { return d.cat; });
+  } else if (storeF === '__sanbu__') {
+    var sanbuData = detailData.filter(function(d) { return d.rawStore && d.rawStore.indexOf('广州大部广州门店三部') >= 0; });
+    catsForStore = [...new Set(sanbuData.map(function(d) { return d.category; }))].sort();
+    budgetsForStore = [...new Set(sanbuData.map(function(d) { return d.budget; }))].sort();
+  } else {
+    catsForStore = [...new Set(detailData.filter(function(d) { return d.store === storeF; }).map(function(d) { return d.category; }))].sort();
+    budgetsForStore = [...new Set(detailData.filter(function(d) { return d.store === storeF; }).map(function(d) { return d.budget; }))].sort();
+  }
   
   catSel.innerHTML = '<option value="all">全部类别</option>';
   catsForStore.forEach(function(c) {
@@ -1511,7 +1525,8 @@ function renderTable() {
   var budgetF = document.getElementById('budgetFilter').value;
   
   var filtered = detailData.filter(function(d) {
-    if (storeF !== 'all' && d.store !== storeF) return false;
+    if (storeF !== 'all' && storeF !== '__sanbu__' && d.store !== storeF) return false;
+    if (storeF === '__sanbu__' && (!d.rawStore || d.rawStore.indexOf('广州大部广州门店三部') < 0)) return false;
     if (catF !== 'all' && d.category !== catF) return false;
     if (budgetF !== 'all' && d.budget !== budgetF) return false;
     return true;
@@ -1607,7 +1622,8 @@ function renderTrend() {
   document.getElementById('trendDimHeader').textContent = dim === 'category' ? '费用类别' : '预算科目';
   
   var filtered = detailData.filter(function(d) {
-    if (storeF !== 'all' && d.store !== storeF) return false;
+    if (storeF !== 'all' && storeF !== '__sanbu__' && d.store !== storeF) return false;
+    if (storeF === '__sanbu__' && (!d.rawStore || d.rawStore.indexOf('广州大部广州门店三部') < 0)) return false;
     return true;
   });
   

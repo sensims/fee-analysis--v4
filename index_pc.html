@@ -230,12 +230,12 @@ td{padding:10px 14px;border-bottom:1px solid var(--gray-100);font-size:12px}
         <button class="btn btn-warning" onclick="resetAll()" style="padding:8px 16px;font-size:12px;margin:0;">🔄 重置</button>
       </div>
     </div>
-    <div class="filter-bar">
-      <label>🏪 SAP门店：</label>
-      <select id="trendStoreFilter" onchange="renderTrend()">
-        <option value="all">全部门店</option>
-      </select>
-      <label>📊 汇总维度：</label>
+      <div class="filter-bar">
+        <label>🏪 SAP门店：</label>
+        <select id="trendStoreFilter" onchange="renderTrend()">
+          <option value="all">全部门店</option>
+        </select>
+        <label>📊 汇总维度：</label>
       <select id="trendDimFilter" onchange="renderTrend()">
         <option value="category">按费用类别</option>
         <option value="budget">按预算科目</option>
@@ -523,6 +523,7 @@ function parseExcelData() {
   var budgetCol = 23;     // 列24：预算科目
   
   // 门店名称标准化函数 - 去除"广州大部广州门店三部"等前缀
+  // 如果剥离后为空（即原始名称本身就是前缀），则保留原始名称
   function normalizeStoreName(storeName) {
     if (!storeName) return storeName;
     
@@ -544,6 +545,11 @@ function parseExcelData() {
       }
     }
     
+    // 剥离后为空，说明原始名称就是前缀本身，保留原始名称
+    if (normalized.trim() === '') {
+      return String(storeName);
+    }
+    
     return normalized;
   }
   
@@ -557,11 +563,9 @@ function parseExcelData() {
     var row = data[i];
     if (!row) continue;
     
-    // 读取SAP门店
-    var store = '';
-    if (row[sapStoreCol]) {
-      store = normalizeStoreName(String(row[sapStoreCol]).trim());
-    }
+    // 读取SAP门店（rawStore保留原始完整部门名称，store为标准化后去除前缀的名称）
+    var rawStore = row[sapStoreCol] ? String(row[sapStoreCol]).trim() : '';
+    var store = rawStore ? normalizeStoreName(rawStore) : '';
     
     if (!store || store === '') continue;
     
@@ -706,6 +710,7 @@ function parseExcelData() {
       storeDataMap[store] = {
         store: store,
         displayName: store,
+        rawStore: rawStore,  // 保留原始完整部门名称
         m1: 0, m2: 0, m3: 0, m4: 0,
         m5: 0, m6: 0, m7: 0, m8: 0,
         m9: 0, m10: 0, m11: 0, m12: 0,
@@ -745,7 +750,7 @@ function parseExcelData() {
     budgetMap[budget] += amount;
     
     // 添加明细数据
-    detailData.push({store: store, displayName: store, category: category, budget: budget, month: month, amount: amount});
+    detailData.push({store: store, displayName: store, rawStore: rawStore, category: category, budget: budget, month: month, amount: amount});
   }
   
   // 转换为数组
@@ -929,10 +934,10 @@ function populateFilters() {
   var budgetFilter = document.getElementById('budgetFilter');
   var trendStoreFilter = document.getElementById('trendStoreFilter');
   
-  storeFilter.innerHTML = '<option value="all">全部SAP门店</option>';
+  storeFilter.innerHTML = '<option value="all">全部SAP门店</option><option value="__sanbu__">📌 广州大部广州门店三部</option>';
   catFilter.innerHTML = '<option value="all">全部类别</option>';
   budgetFilter.innerHTML = '<option value="all">全部科目</option>';
-  trendStoreFilter.innerHTML = '<option value="all">全部门店</option>';
+  trendStoreFilter.innerHTML = '<option value="all">全部门店</option><option value="__sanbu__">📌 广州大部广州门店三部</option>';
   
   storeMonthly.forEach(function(s) {
     var opt = document.createElement('option');
@@ -968,6 +973,11 @@ function onStoreChange() {
   if (storeF === 'all') {
     catsForStore = categoryData.map(function(d) { return d.cat; });
     budgetsForStore = budgetData.map(function(d) { return d.cat; });
+  } else if (storeF === '__sanbu__') {
+    // 广州大部广州门店三部：匹配 rawStore 包含该字符串
+    var sanbuData = detailData.filter(function(d) { return d.rawStore && d.rawStore.indexOf('广州大部广州门店三部') >= 0; });
+    catsForStore = [...new Set(sanbuData.map(function(d) { return d.category; }))].sort();
+    budgetsForStore = [...new Set(sanbuData.map(function(d) { return d.budget; }))].sort();
   } else {
     catsForStore = [...new Set(detailData.filter(function(d) { return d.store === storeF; }).map(function(d) { return d.category; }))].sort();
     budgetsForStore = [...new Set(detailData.filter(function(d) { return d.store === storeF; }).map(function(d) { return d.budget; }))].sort();
@@ -1091,7 +1101,8 @@ function renderTable() {
   var monthF = document.getElementById('monthFilter').value;
   
   var filtered = detailData.filter(function(d) {
-    if (storeF !== 'all' && d.store !== storeF) return false;
+    if (storeF !== 'all' && storeF !== '__sanbu__' && d.store !== storeF) return false;
+    if (storeF === '__sanbu__' && (!d.rawStore || d.rawStore.indexOf('广州大部广州门店三部') < 0)) return false;
     if (catF !== 'all' && d.category !== catF) return false;
     if (budgetF !== 'all' && d.budget !== budgetF) return false;
     if (monthF !== 'all' && d.month !== parseInt(monthF)) return false;
@@ -1269,7 +1280,8 @@ function renderTrend() {
   
   // 筛选数据
   var filtered = detailData.filter(function(d) {
-    if (storeF !== 'all' && d.store !== storeF) return false;
+    if (storeF !== 'all' && storeF !== '__sanbu__' && d.store !== storeF) return false;
+    if (storeF === '__sanbu__' && (!d.rawStore || d.rawStore.indexOf('广州大部广州门店三部') < 0)) return false;
     if (period === 'q1' && (d.month < 1 || d.month > 3)) return false;
     if (period === 'q2' && (d.month < 4 || d.month > 6)) return false;
     return true;
